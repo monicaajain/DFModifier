@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block head %}
+
+{% endblock %}
+
+{% block body %}
+<h3>Load data from CSV</h3>
+<form method="POST" action="/uploadCSV" enctype="multipart/form-data">
+    <p><input type="file" name="csvFile" accept=".csv"></p>
+    <p><input type="submit" value="Generate DF"></p>
+</form>
+<h3>Load data from SQLite DB</h3>
+<form method="POST" action="/uploadDB" enctype="multipart/form-data">
+    <p><input type="file" name="dbFile" accept=".db"></p>
+    <p><input type="submit" value="Generate DF"></p>
+</form>
+<h3>Write DF to SQLite DB</h3>
+    <form method="POST" action="/writeDB" enctype="multipart/form-data">
+    <label> Select DF </label>
+    <select name = "DF_to_SQLite">
+      {% for key, value in operation.dataframes.items() %}
+      <option value = {{key}}> {{key}} 
+      </option>
+      {% endfor %}
+    </select>
+    <p><label> Select DB </label>
+    <input type="file" name="dbWriteFile" accept=".db"></p>
+    <p><input type="submit" value="Write DF"></p>
+    </form>
+<h3>Common column names</h3>
+      <form method="POST" action="/commonColumns">
+      <label> First DF </label>
+    <select name = "First_DF_common_column">
+      {% for key, value in operation.dataframes.items() %}
+      <option value = {{key}}> {{key}} 
+      </option>
+      {% endfor %}
+    </select>
+        <label> Second DF </label>
+        <select name = "Second_DF_common_column">
+          {% for key, value in operation.dataframes.items() %}
+          <option value = {{key}}> {{key}} 
+          </option>
+          {% endfor %}
+        </select>
+        <p><input type="submit" value="Compare DFs"></p>
+        <p><textarea readonly id="commonColumns" name="commonColumns" rows="2" cols="50">{{ operation.commonColumns }}
+        </textarea></p>
+        </form>
+<h3>Calculate Nth percentile of all the columns with numerical data</h3>
+    <form method="POST" action="/nthPercentile">
+    <label> Select DF </label>
+    <select name = "DF_Nth_Percentile">
+      {% for key, value in operation.dataframes.items() %}
+      <option value = {{key}}> {{key}} 
+      </option>
+      {% endfor %}
+    </select>                          
+    <p><label for="percentile">Percentile</label></p>  
+    <input type="range" min="0" max="100" value="50" id="percentile" name="percentileRange" step="1" oninput="outputUpdate(value)">
+    <output for="percentile" id="percentileOutput">50</output>
+    <script>
+      function outputUpdate(vol) {
+	      document.querySelector('#percentileOutput').value = vol;
+      }
+    </script>
+    <p><input type="submit" value="Calculate"></p>
+    <p><textarea readonly id="nthPercentile" name="nthPercentile" rows="2" cols="50">{% for key, value in operation.nthPercentileValues.items() %}{{key}}:{{value}},{% endfor %}
+    </textarea></p>
+    </form>
+<h3>Operation details</h3>  
+  <textarea readonly id="operation" name="operation" rows="3" cols="75">{{ operation.operationDetails }}
+  </textarea>
+<h3>DF basic information</h3>  
+<form method="POST" action="/showDetails">
+  <label> Select DF </label>
+  <select name = "DF_Details">
+    {% for key, value in operation.dataframes.items() %}
+    <option value = {{key}}> {{key}} 
+    </option>
+    {% endfor %}
+  </select>
+  <p><input type="submit" value="Show details"></p>
+  </form>
+  <p><textarea readonly id="dfShape" name="dfShape" rows="1" cols="50">{{ operation.dfShape }}
+  </textarea></p>
+{% for table in operation.dfTableDetails %}
+            {{ table|safe }}
+{% endfor %}
+{% endblock %}
